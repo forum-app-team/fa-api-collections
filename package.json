@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "sync": "node --env-file=.env scripts/sync-postman.mjs",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}

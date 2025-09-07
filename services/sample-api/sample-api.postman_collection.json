@@ -1,0 +1,58 @@
+{
+  "info": {
+    "name": "sample-api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Echo Request",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.variables.set('key', 'foo');",
+              "pm.variables.set('value', 'bar');"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));",
+              "const args = pm.response.json().args;",
+              "pm.test(\"Arguments match\", () => pm.expect(args[pm.variables.get('key')]).to.eql(pm.variables.get('value')));"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}?{{key}}={{value}}",
+          "host": ["{{base_url}}"],
+          "query": [
+            {
+              "key": "{{key}}",
+              "value": "{{value}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://postman-echo.com/get",
+      "type": "string"
+    }
+  ]
+}
