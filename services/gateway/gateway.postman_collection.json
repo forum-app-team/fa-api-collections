@@ -1,0 +1,220 @@
+{
+	"info": {
+		"_postman_id": "76e32a2c-0b42-4713-9fbc-2aa7b29e3249",
+		"name": "gateway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47582783",
+		"_collection_link": "https://xintianlee-1272592.postman.co/workspace/Xintian's-Workspace~7488ab2a-8f15-4ff0-8ae0-cd2584f1a06b/collection/47582783-76e32a2c-0b42-4713-9fbc-2aa7b29e3249?action=share&source=collection_link&creator=47582783"
+	},
+	"item": [
+		{
+			"name": "Access public auth endpoints",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Bad gateway\", () => pm.response.to.have.status(502));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/auth/login",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Access protected endpoints",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Unauthorized\", () => pm.response.to.have.status(401));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/auth/",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Access protect endpoints with authentication",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function base64url(source) {",
+							"    let encodedSource = CryptoJS.enc.Base64.stringify(source);",
+							"    encodedSource = encodedSource.replace(/=+$/, '');",
+							"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+							"    encodedSource = encodedSource.replace(/\\//g, '_');",
+							"    return encodedSource;",
+							"}",
+							"",
+							"// Header",
+							"var header = {",
+							"  alg: \"HS256\",",
+							"  typ: \"JWT\"",
+							"};",
+							"",
+							"// Payload",
+							"var payload = {",
+							"  sub: \"1234567890\",",
+							"  name: \"Alice Example\",",
+							"  role: \"admin\",",
+							"  iat: Math.floor(Date.now() / 1000),",
+							"  exp: Math.floor(Date.now() / 1000) + (60 * 60) // expires in 1h",
+							"};",
+							"",
+							"// Encode header & payload",
+							"var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));",
+							"var encodedHeader = base64url(stringifiedHeader);",
+							"",
+							"var stringifiedPayload = CryptoJS.enc.Utf8.parse(JSON.stringify(payload));",
+							"var encodedPayload = base64url(stringifiedPayload);",
+							"",
+							"// Sign with secret key",
+							"var secret = \"9527f69d583bd7d8a56ab92e62bd9ce96f479739e47d9d74cac06057a4167d67\"; // for HS256",
+							"var signature = CryptoJS.HmacSHA256(encodedHeader + \".\" + encodedPayload, secret);",
+							"var encodedSignature = base64url(signature);",
+							"",
+							"// Build JWT",
+							"var token = encodedHeader + \".\" + encodedPayload + \".\" + encodedSignature;",
+							"",
+							"// Save to environment",
+							"pm.environment.set(\"jwt_token\", token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Bad gateway\", () => pm.response.to.have.status(502));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/auth/",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Access frontend",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Not Found\", () => pm.response.to.have.status(404));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/login",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "http://localhost:8080"
+		}
+	]
+}
