@@ -1,0 +1,388 @@
+{
+  "info": {
+    "name": "Forum File Service - Complete",
+    "description": "Complete API collection for Forum File Service with S3 integration, including upload, retrieve, and error testing",
+    "version": "1.1.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "123",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "Bearer demo-{{userId}}",
+      "type": "string"
+    },
+    {
+      "key": "uploadedObjectKey",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has correct structure', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('status', 'ok');",
+              "    pm.expect(jsonData).to.have.property('service', 'forum-file-service');",
+              "    pm.expect(jsonData).to.have.property('version');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the File Service is running and healthy"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Presign Upload (Profile Image)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response has required fields', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('uploadMethod', 'PUT');",
+              "    pm.expect(jsonData).to.have.property('uploadUrl');",
+              "    pm.expect(jsonData).to.have.property('headers');",
+              "    pm.expect(jsonData).to.have.property('objectKey');",
+              "    pm.expect(jsonData).to.have.property('fileUrl');",
+              "    pm.expect(jsonData).to.have.property('expiresInSeconds', 600);",
+              "    ",
+              "    // Store objectKey for later use",
+              "    pm.collectionVariables.set('uploadedObjectKey', jsonData.objectKey);",
+              "});",
+              "",
+              "pm.test('Object key has correct format', function () {",
+              "    const jsonData = pm.response.json();",
+              "    const userId = pm.collectionVariables.get('userId');",
+              "    pm.expect(jsonData.objectKey).to.match(new RegExp(`^u/${userId}/profile/\\\\d{4}/\\\\d{2}/.+\\\\.png$`));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{authToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"filename\": \"avatar.png\",\n  \"contentType\": \"image/png\",\n  \"sizeBytes\": 183421,\n  \"category\": \"profile\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/files/presign",
+          "host": ["{{baseUrl}}"],
+          "path": ["files", "presign"]
+        },
+        "description": "Request a presigned URL for uploading a profile image"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Direct Upload (Profile Image)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response has required fields', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('fileUrl');",
+              "    pm.expect(jsonData).to.have.property('objectKey');",
+              "    pm.expect(jsonData).to.have.property('sizeBytes');",
+              "    pm.expect(jsonData).to.have.property('contentType');",
+              "    ",
+              "    // Store objectKey for retrieval test",
+              "    pm.collectionVariables.set('uploadedObjectKey', jsonData.objectKey);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{authToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": [],
+              "description": "Select a small image file (PNG/JPEG, <5MB)"
+            },
+            {
+              "key": "category",
+              "value": "profile",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/files/upload",
+          "host": ["{{baseUrl}}"],
+          "path": ["files", "upload"]
+        },
+        "description": "Upload a file directly through the service to S3"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Retrieve File",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has required fields', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('objectKey');",
+              "    pm.expect(jsonData).to.have.property('metadata');",
+              "    pm.expect(jsonData).to.have.property('downloadUrl');",
+              "    pm.expect(jsonData).to.have.property('expiresInSeconds', 3600);",
+              "});",
+              "",
+              "pm.test('Metadata has correct structure', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.metadata).to.have.property('size');",
+              "    pm.expect(jsonData.metadata).to.have.property('contentType');",
+              "    pm.expect(jsonData.metadata).to.have.property('lastModified');",
+              "    pm.expect(jsonData.metadata).to.have.property('serverSideEncryption');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{authToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/files/retrieve/{{uploadedObjectKey}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["files", "retrieve", "{{uploadedObjectKey}}"]
+        },
+        "description": "Retrieve file metadata and get a presigned download URL. Run after uploading a file to populate the objectKey variable."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Error Tests",
+      "item": [
+        {
+          "name": "Unauthorized Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Error response structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('traceId');",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.have.property('code', 'UNAUTHORIZED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"test.png\",\n  \"contentType\": \"image/png\",\n  \"sizeBytes\": 1024,\n  \"category\": \"profile\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files/presign",
+              "host": ["{{baseUrl}}"],
+              "path": ["files", "presign"]
+            },
+            "description": "Test authentication requirement - should return 401"
+          },
+          "response": []
+        },
+        {
+          "name": "File Too Large",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 413', function () {",
+                  "    pm.response.to.have.status(413);",
+                  "});",
+                  "",
+                  "pm.test('Error response structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.have.property('code', 'PAYLOAD_TOO_LARGE');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{authToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"large-file.png\",\n  \"contentType\": \"image/png\",\n  \"sizeBytes\": 6000000,\n  \"category\": \"profile\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files/presign",
+              "host": ["{{baseUrl}}"],
+              "path": ["files", "presign"]
+            },
+            "description": "Test file size limit - profile images must be ≤5MB"
+          },
+          "response": []
+        },
+        {
+          "name": "File Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error response structure', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.have.property('code', 'NOT_FOUND');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/files/retrieve/u/{{userId}}/profile/2025/09/nonexistent.png",
+              "host": ["{{baseUrl}}"],
+              "path": ["files", "retrieve", "u", "{{userId}}", "profile", "2025", "09", "nonexistent.png"]
+            },
+            "description": "Test retrieving a file that doesn't exist"
+          },
+          "response": []
+        }
+      ],
+      "description": "Collection of error test cases to validate proper error handling"
+    }
+  ]
+}
