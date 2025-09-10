@@ -1,0 +1,88 @@
+{
+	"info": {
+		"name": "email",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Publish a message to RabbitMQ",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set('payload_b64', Buffer.from(JSON.stringify({",
+							"    id: '001',",
+							"    to: 'bob@example.com',",
+							"    subject: 'Test',",
+							"    html: '<b>Hello</b>'",
+							"})).toString('base64'));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"OK\", () => pm.response.to.have.status(200));",
+							"pm.test(\"Routed\", () => pm.expect(pm.response.json().routed).to.be.true);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "guest",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "guest",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"properties\": {\n    \"content_type\": \"application/json\",\n    \"delivery_mode\": 2\n  },\n  \"routing_key\": \"send\",\n  \"payload\": \"{{payload_b64}}\",\n  \"payload_encoding\": \"base64\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/{{exchange}}/publish",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{exchange}}",
+						"publish"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:15672/api/exchanges/%2F"
+		},
+		{
+			"key": "exchange",
+			"value": "email"
+		}
+	]
+}
