@@ -1,0 +1,151 @@
+{
+  "info": {
+    "name": "fa-history",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8091", "type": "string" },
+    { "key": "user_id", "value": "user123", "type": "string" },
+    { "key": "jwt_secret", "value": "devsecret", "type": "string" },
+    { "key": "jwt", "value": "", "type": "string" },
+    { "key": "post_id_published", "value": "c2ef7b85-eb35-4de3-8dd6-30c66bd465f4", "type": "string" },
+    { "key": "post_id_published2", "value": "6d1c08e5-f0ce-4b55-8f92-f226b5fa7926", "type": "string" },
+    { "key": "post_id_draft", "value": "9eed7271-30b9-4030-bb17-8be88e9fa2bc", "type": "string" },
+    { "key": "last_history_id", "value": "", "type": "string" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Generate HS256 JWT for Authorization using modern crypto API",
+          "function b64url(obj){",
+          "  const json = (typeof obj === 'string') ? obj : JSON.stringify(obj);",
+          "  const b64 = btoa(json);",
+          "  return b64.replace(/=+$/,'').replace(/\\+/g,'-').replace(/\\//g,'_');",
+          "}",
+          "",
+          "async function hmacSha256(key, data) {",
+          "  const encoder = new TextEncoder();",
+          "  const keyData = encoder.encode(key);",
+          "  const dataBuffer = encoder.encode(data);",
+          "  const cryptoKey = await crypto.subtle.importKey(",
+          "    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']",
+          "  );",
+          "  const signature = await crypto.subtle.sign('HMAC', cryptoKey, dataBuffer);",
+          "  return btoa(String.fromCharCode(...new Uint8Array(signature)));",
+          "}",
+          "",
+          "const header = { alg: 'HS256', typ: 'JWT' };",
+          "const payload = { sub: pm.collectionVariables.get('user_id') || 'user123', emailVerified: true };",
+          "const encHeader = b64url(header);",
+          "const encPayload = b64url(payload);",
+          "const secret = pm.collectionVariables.get('jwt_secret') || 'devsecret';",
+          "const signingInput = encHeader + '.' + encPayload;",
+          "",
+          "hmacSha256(secret, signingInput).then(sig => {",
+          "  const encSig = sig.replace(/=+$/,'').replace(/\\+/g,'-').replace(/\\//g,'_');",
+          "  pm.collectionVariables.set('jwt', encHeader + '.' + encPayload + '.' + encSig);",
+          "}).catch(err => {",
+          "  console.error('JWT generation failed:', err);",
+          "  // Fallback: set a placeholder token",
+          "  pm.collectionVariables.set('jwt', 'GENERATE_JWT_MANUALLY');",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+      }
+    },
+    {
+      "name": "Record View (Published)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/history/views", "host": ["{{base_url}}"], "path": ["history","views"] },
+        "body": { "mode": "raw", "raw": "{\n  \"postId\": \"{{post_id_published}}\",\n  \"searchTerm\": \"Postman test\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200/201', function(){ pm.expect([200,201]).to.include(pm.response.code); });",
+              "try { var id = pm.response.json().historyId; if (id) pm.collectionVariables.set('last_history_id', id); } catch(e) {}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Record View (Draft - expect 403)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/history/views", "host": ["{{base_url}}"], "path": ["history","views"] },
+        "body": { "mode": "raw", "raw": "{\n  \"postId\": \"{{post_id_draft}}\",\n  \"searchTerm\": \"should be blocked\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": ["pm.test('Status is 403', function(){ pm.expect(pm.response.code).to.eql(403); });"] }
+        }
+      ]
+    },
+    {
+      "name": "List History",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
+        "url": {
+          "raw": "{{base_url}}/history?limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["history"],
+          "query": [ {"key":"limit","value":"10"} ]
+        }
+      }
+    },
+    {
+      "name": "Stats",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
+        "url": { "raw": "{{base_url}}/history/stats", "host": ["{{base_url}}"], "path": ["history","stats"] }
+      }
+    },
+    {
+      "name": "Delete One (uses last_history_id)",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
+        "url": { "raw": "{{base_url}}/history/{{last_history_id}}", "host": ["{{base_url}}"], "path": ["history","{{last_history_id}}"] }
+      }
+    },
+    {
+      "name": "Delete All",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
+        "url": { "raw": "{{base_url}}/history", "host": ["{{base_url}}"], "path": ["history"] }
+      }
+    },
+    {
+      "name": "Record View (Published #2)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{base_url}}/history/views", "host": ["{{base_url}}"], "path": ["history","views"] },
+        "body": { "mode": "raw", "raw": "{\n  \"postId\": \"{{post_id_published2}}\",\n  \"searchTerm\": \"Postman test #2\"\n}" }
+      }
+    }
+  ]
+}
+
