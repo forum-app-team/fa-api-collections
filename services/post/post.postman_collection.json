@@ -4,21 +4,9 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:3002",
-      "type": "string"
-    },
-    {
-      "key": "jwt",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "post_id",
-      "value": "",
-      "type": "string"
-    }
+    { "key": "base_url", "value": "http://localhost:3002", "type": "string" },
+    { "key": "jwt", "value": "", "type": "string" },
+    { "key": "post_id", "value": "", "type": "string" }
   ],
   "item": [
     {
@@ -36,7 +24,7 @@
                   "const json = pm.response.json();",
                   "pm.test('status=Unpublished', () => pm.expect(json.status).to.eql('Unpublished'));",
                   "pm.collectionVariables.set('post_id', json.id || '');",
-                  "pm.test('id captured', () => pm.collectionVariables.get('post_id') !== '');"
+                  "pm.test('id captured', () => pm.collectionVariables.get('post_id') !== '')"
                 ]
               }
             }
@@ -44,14 +32,8 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -59,13 +41,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/posts",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "posts"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
             }
           }
         },
@@ -80,7 +57,7 @@
                   "pm.test('OK 200', () => pm.response.to.have.status(200));",
                   "const json = pm.response.json();",
                   "pm.test('has updateDate', () => pm.expect(json.updateDate).to.exist);",
-                  "pm.test('lastEditedAt set when content changed', () => pm.expect(json.lastEditedAt).to.exist);"
+                  "pm.test('lastEditedAt set when content changed', () => pm.expect(json.lastEditedAt).to.exist)"
                 ]
               }
             }
@@ -88,14 +65,8 @@
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
@@ -103,14 +74,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/posts/{{post_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "posts",
-                "{{post_id}}"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
             }
           }
         },
@@ -124,30 +89,18 @@
                 "exec": [
                   "pm.test('OK 200', () => pm.response.to.have.status(200));",
                   "const json = pm.response.json();",
-                  "pm.test('status=Published', () => pm.expect(json.status).to.eql('Published'));"
+                  "pm.test('status=Published', () => pm.expect(json.status).to.eql('Published'))"
                 ]
               }
             }
           ],
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
             "url": {
               "raw": "{{base_url}}/api/posts/{{post_id}}/publish",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "posts",
-                "{{post_id}}",
-                "publish"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "publish"]
             }
           }
         },
@@ -160,28 +113,18 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('OK 200', () => pm.response.to.have.status(200));",
-                  "pm.test('array', () => Array.isArray(pm.response.json()));"
+                  "pm.test('array', () => Array.isArray(pm.response.json()))"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
             "url": {
               "raw": "{{base_url}}/api/posts",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "posts"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
             }
           }
         },
@@ -195,29 +138,137 @@
                 "exec": [
                   "pm.test('OK 200', () => pm.response.to.have.status(200));",
                   "const json = pm.response.json();",
-                  "pm.test('id matches', () => pm.expect(json.id).to.eql(pm.collectionVariables.get('post_id')));"
+                  "pm.test('id matches', () => pm.expect(json.id).to.eql(pm.collectionVariables.get('post_id')))"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
             "url": {
               "raw": "{{base_url}}/api/posts/{{post_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "posts",
-                "{{post_id}}"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('2xx/204 success', () => pm.response.code>=200 && pm.response.code<300)"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Archive Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OK 200', () => pm.response.to.have.status(200));",
+                  "pm.test('isArchived true', () => pm.expect(pm.response.json().isArchived).to.eql(true))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/archive",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "archive"]
+            }
+          }
+        },
+        {
+          "name": "Unarchive Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OK 200', () => pm.response.to.have.status(200));",
+                  "pm.test('isArchived false', () => pm.expect(pm.response.json().isArchived).to.eql(false))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/unarchive",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "unarchive"]
+            }
+          }
+        },
+        {
+          "name": "Hide Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OK 200', () => pm.response.to.have.status(200));",
+                  "pm.test('status Hidden', () => pm.expect(pm.response.json().status).to.eql('Hidden'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/hide",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "hide"]
+            }
+          }
+        },
+        {
+          "name": "Unhide Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OK 200', () => pm.response.to.have.status(200));",
+                  "pm.test('not Hidden', () => pm.expect(pm.response.json().status).to.not.eql('Hidden'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/unhide",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "unhide"]
             }
           }
         }
@@ -225,16 +276,37 @@
     },
     {
       "name": "Negative",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function base64url(source){let s=CryptoJS.enc.Base64.stringify(source);return s.replace(/=+$/,'').replace(/\\+/g,'-').replace(/\\//g,'_');}",
+              "var now=Math.floor(Date.now()/1000);",
+              "var header={alg:'HS256',typ:'JWT'};",
+              "var payload={sub:'00000000-0000-4000-8000-000000000002',email:'other@example.com',emailVerified:true,role:'user',iss:'fa-auth',aud:'fa-post',iat:now,exp:now+3600};",
+              "var h=base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(header)));",
+              "var p=base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+              "var secret='devsecret123';",
+              "var sig=CryptoJS.HmacSHA256(h+'.'+p, secret);",
+              "var token=h+'.'+p+'.'+base64url(sig);",
+              "pm.collectionVariables.set('jwt', token);",
+              "pm.environment.set('jwt', token);"
+            ]
+          }
+        }
+      ],
       "item": [
         {
-          "name": "List without token \u2192 401",
+          "name": "List without token",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"
+                  "pm.test('401 Unauthorized', () => pm.response.to.have.status(401))"
                 ]
               }
             }
@@ -244,17 +316,320 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/posts",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "posts"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            }
+          }
+        },
+        {
+          "name": "Update Post as NON-OWNER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"hacked\",\n  \"content\": \"nope\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Post as NON-OWNER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Archive Post as NON-OWNER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/archive",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "archive"]
+            }
+          }
+        },
+        {
+          "name": "Hide Post as NON-OWNER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/hide",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "hide"]
+            }
+          }
+        },
+        {
+          "name": "Ban Post as NON-ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/ban",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "ban"]
+            }
+          }
+        },
+        {
+          "name": "Unban Post as NON-ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/unban",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "unban"]
+            }
+          }
+        },
+        {
+          "name": "Recover Post as NON-ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/recover",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "recover"]
             }
           }
         }
       ]
+    },
+    {
+      "name": "Admin",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "function base64url(source){let s=CryptoJS.enc.Base64.stringify(source);return s.replace(/=+$/,'').replace(/\\+/g,'-').replace(/\\//g,'_');}",
+              "var now=Math.floor(Date.now()/1000);",
+              "var header={alg:'HS256',typ:'JWT'};",
+              "var payload={sub:'00000000-0000-4000-8000-000000000001',email:'dev@example.com',emailVerified:true,role:'admin',iss:'fa-auth',aud:'fa-post',iat:now,exp:now+3600};",
+              "var encodedHeader=base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(header)));",
+              "var encodedPayload=base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+              "var secret='devsecret123';",
+              "var sig=CryptoJS.HmacSHA256(encodedHeader+'.'+encodedPayload, secret);",
+              "var token=encodedHeader+'.'+encodedPayload+'.'+base64url(sig);",
+              "pm.collectionVariables.set('jwt', token);",
+              "pm.environment.set('jwt', token);"
+            ]
+          }
+        }
+      ],
+      "item": [
+        {
+          "name": "Ban Post (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OK 200', () => pm.response.to.have.status(200));",
+                  "pm.test('status Banned', () => pm.expect(pm.response.json().status).to.eql('Banned'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/ban",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "ban"]
+            }
+          }
+        },
+        {
+          "name": "Unban Post (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OK 200', () => pm.response.to.have.status(200));",
+                  "pm.test('not Banned', () => pm.expect(pm.response.json().status).to.not.eql('Banned'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/unban",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "unban"]
+            }
+          }
+        },
+        {
+          "name": "Recover Post (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OK 200', () => pm.response.to.have.status(200));",
+                  "pm.test('not Deleted', () => pm.expect(pm.response.json().status).to.not.eql('Deleted'))"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt}}" }],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}/recover",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}", "recover"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          "function base64url(source) {",
+          "  let s = CryptoJS.enc.Base64.stringify(source);",
+          "  s = s.replace(/=+$/, '');",
+          "  s = s.replace(/\\+/g, '-');",
+          "  s = s.replace(/\\//g, '_');",
+          "  return s;",
+          "}",
+          "",
+          "var header = { alg: \"HS256\", typ: \"JWT\" };",
+          "var now = Math.floor(Date.now()/1000);",
+          "var payload = {",
+          "  sub: '00000000-0000-4000-8000-000000000001',",
+          "  email: 'dev@example.com',",
+          "  emailVerified: true,",
+          "  role: 'user',",
+          "  iss: 'fa-auth',",
+          "  aud: 'fa-post',",
+          "  iat: now,",
+          "  exp: now + 60*60",
+          "};",
+          "",
+          "var encodedHeader = base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(header)));",
+          "var encodedPayload = base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+          "",
+          "var secret = 'devsecret123'; // plain-text secret to match your Node example",
+          "var signature = CryptoJS.HmacSHA256(encodedHeader + \".\" + encodedPayload, secret);",
+          "var encodedSignature = base64url(signature);",
+          "",
+          "var token = encodedHeader + \".\" + encodedPayload + \".\" + encodedSignature;",
+          "pm.collectionVariables.set('jwt', token);",
+          "pm.environment.set('jwt', token);"
+        ]
+      }
     }
   ]
 }
