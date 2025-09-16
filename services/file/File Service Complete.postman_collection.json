@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Forum File Service - Complete",
+    "name": "fa-file",
     "description": "Complete API collection for Forum File Service with S3 integration, including upload, retrieve, and error testing",
     "version": "1.1.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -8,17 +8,17 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:8080",
+      "value": "http://localhost:3005",
       "type": "string"
     },
     {
       "key": "userId",
-      "value": "123",
+      "value": "123e4567-e89b-12d3-a456-426614174000",
       "type": "string"
     },
     {
       "key": "authToken",
-      "value": "Bearer demo-{{userId}}",
+      "value": "",
       "type": "string"
     },
     {
@@ -27,6 +27,38 @@
       "type": "string"
     }
   ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Generate HS256 JWT for authToken using secret devsecret",
+          "const header = { alg: 'HS256', typ: 'JWT' };",
+          "const now = Math.floor(Date.now()/1000);",
+          "const payload = {",
+          "  sub: pm.collectionVariables.get('userId') || '123e4567-e89b-12d3-a456-426614174000',",
+          "  role: 'normal',",
+          "  email: 'test@example.com',",
+          "  emailVerified: true,",
+          "  iat: now,",
+          "  exp: now + 3600",
+          "};",
+          "function b64url(input) {",
+          "  return CryptoJS.enc.Base64.stringify(input).replace(/=+$/,'').replace(/\\+/g,'-').replace(/\\//g,'_');",
+          "}",
+          "const encHeader = b64url(CryptoJS.enc.Utf8.parse(JSON.stringify(header)));",
+          "const encPayload = b64url(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+          "const signingInput = encHeader + '.' + encPayload;",
+          "const signature = CryptoJS.HmacSHA256(signingInput, 'devsecret');",
+          "const encSig = b64url(signature);",
+          "const token = signingInput + '.' + encSig;",
+          "pm.collectionVariables.set('authToken', 'Bearer ' + token);"
+        ]
+      }
+    }
+  ],
+
   "item": [
     {
       "name": "1. Health Check",
@@ -52,11 +84,17 @@
       ],
       "request": {
         "method": "GET",
-        "header": [],
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{authToken}}",
+            "type": "text"
+          }
+        ],
         "url": {
-          "raw": "{{baseUrl}}/health",
+          "raw": "{{baseUrl}}/api/files/health",
           "host": ["{{baseUrl}}"],
-          "path": ["health"]
+          "path": ["api", "files", "health"]
         },
         "description": "Check if the File Service is running and healthy"
       },
@@ -120,9 +158,9 @@
           }
         },
         "url": {
-          "raw": "{{baseUrl}}/files/presign",
+          "raw": "{{baseUrl}}/api/files/presign",
           "host": ["{{baseUrl}}"],
-          "path": ["files", "presign"]
+          "path": ["api", "files", "presign"]
         },
         "description": "Request a presigned URL for uploading a profile image"
       },
@@ -180,9 +218,9 @@
           ]
         },
         "url": {
-          "raw": "{{baseUrl}}/files/upload",
+          "raw": "{{baseUrl}}/api/files/upload",
           "host": ["{{baseUrl}}"],
-          "path": ["files", "upload"]
+          "path": ["api", "files", "upload"]
         },
         "description": "Upload a file directly through the service to S3"
       },
@@ -229,9 +267,9 @@
           }
         ],
         "url": {
-          "raw": "{{baseUrl}}/files/retrieve/{{uploadedObjectKey}}",
+          "raw": "{{baseUrl}}/api/files/retrieve/{{uploadedObjectKey}}",
           "host": ["{{baseUrl}}"],
-          "path": ["files", "retrieve", "{{uploadedObjectKey}}"]
+          "path": ["api", "files", "retrieve", "{{uploadedObjectKey}}"]
         },
         "description": "Retrieve file metadata and get a presigned download URL. Run after uploading a file to populate the objectKey variable."
       },
@@ -281,9 +319,9 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/files/presign",
+              "raw": "{{baseUrl}}/api/files/presign",
               "host": ["{{baseUrl}}"],
-              "path": ["files", "presign"]
+              "path": ["api", "files", "presign"]
             },
             "description": "Test authentication requirement - should return 401"
           },
@@ -334,9 +372,9 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/files/presign",
+              "raw": "{{baseUrl}}/api/files/presign",
               "host": ["{{baseUrl}}"],
-              "path": ["files", "presign"]
+              "path": ["api", "files", "presign"]
             },
             "description": "Test file size limit - profile images must be ≤5MB"
           },
@@ -373,9 +411,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/files/retrieve/u/{{userId}}/profile/2025/09/nonexistent.png",
+              "raw": "{{baseUrl}}/api/files/retrieve/u/{{userId}}/profile/2025/09/nonexistent.png",
               "host": ["{{baseUrl}}"],
-              "path": ["files", "retrieve", "u", "{{userId}}", "profile", "2025", "09", "nonexistent.png"]
+              "path": ["api", "files", "retrieve", "u", "{{userId}}", "profile", "2025", "09", "nonexistent.png"]
             },
             "description": "Test retrieving a file that doesn't exist"
           },
