@@ -4,7 +4,7 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url", "value": "http://127.0.0.1:8091", "type": "string" },
+    { "key": "base_url", "value": "http://127.0.0.1:3004", "type": "string" },
     { "key": "user_id", "value": "user123", "type": "string" },
     { "key": "jwt_secret", "value": "devsecret", "type": "string" },
     { "key": "jwt", "value": "", "type": "string" },
@@ -69,7 +69,7 @@
       "request": {
         "method": "POST",
         "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" }, { "key": "Content-Type", "value": "application/json" } ],
-        "url": { "raw": "{{base_url}}/history/views", "host": ["{{base_url}}"], "path": ["history","views"] },
+        "url": { "raw": "{{base_url}}/api/history/views", "host": ["{{base_url}}"], "path": ["api", "history","views"] },
         "body": { "mode": "raw", "raw": "{\n  \"postId\": \"{{post_id_published}}\",\n  \"searchTerm\": \"Postman test\"\n}" }
       },
       "event": [
@@ -90,7 +90,7 @@
       "request": {
         "method": "POST",
         "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" }, { "key": "Content-Type", "value": "application/json" } ],
-        "url": { "raw": "{{base_url}}/history/views", "host": ["{{base_url}}"], "path": ["history","views"] },
+        "url": { "raw": "{{base_url}}/api/history/views", "host": ["{{base_url}}"], "path": ["api", "history","views"] },
         "body": { "mode": "raw", "raw": "{\n  \"postId\": \"{{post_id_draft}}\",\n  \"searchTerm\": \"should be blocked\"\n}" }
       },
       "event": [
@@ -106,9 +106,9 @@
         "method": "GET",
         "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
         "url": {
-          "raw": "{{base_url}}/history?limit=10",
+          "raw": "{{base_url}}/api/history?limit=10",
           "host": ["{{base_url}}"],
-          "path": ["history"],
+          "path": ["api", "history"],
           "query": [ {"key":"limit","value":"10"} ]
         }
       }
@@ -118,7 +118,7 @@
       "request": {
         "method": "GET",
         "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
-        "url": { "raw": "{{base_url}}/history/stats", "host": ["{{base_url}}"], "path": ["history","stats"] }
+        "url": { "raw": "{{base_url}}/api/history/stats", "host": ["{{base_url}}"], "path": ["api", "history","stats"] }
       }
     },
     {
@@ -126,7 +126,7 @@
       "request": {
         "method": "DELETE",
         "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
-        "url": { "raw": "{{base_url}}/history/{{last_history_id}}", "host": ["{{base_url}}"], "path": ["history","{{last_history_id}}"] }
+        "url": { "raw": "{{base_url}}/api/history/{{last_history_id}}", "host": ["{{base_url}}"], "path": ["api", "history","{{last_history_id}}"] }
       }
     },
     {
@@ -134,7 +134,7 @@
       "request": {
         "method": "DELETE",
         "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" } ],
-        "url": { "raw": "{{base_url}}/history", "host": ["{{base_url}}"], "path": ["history"] }
+        "url": { "raw": "{{base_url}}/api/history", "host": ["{{base_url}}"], "path": ["api", "history"] }
       }
     },
     {
@@ -142,10 +142,9 @@
       "request": {
         "method": "POST",
         "header": [ { "key": "Authorization", "value": "Bearer {{jwt}}" }, { "key": "Content-Type", "value": "application/json" } ],
-        "url": { "raw": "{{base_url}}/history/views", "host": ["{{base_url}}"], "path": ["history","views"] },
+        "url": { "raw": "{{base_url}}/api/history/views", "host": ["{{base_url}}"], "path": ["api", "history","views"] },
         "body": { "mode": "raw", "raw": "{\n  \"postId\": \"{{post_id_published2}}\",\n  \"searchTerm\": \"Postman test #2\"\n}" }
       }
     }
   ]
 }
-
